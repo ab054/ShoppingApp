@@ -16,20 +16,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.scrollingactivity.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewHolder> implements Filterable {
 
     private final ShoppingActivity activity;
-    private ArrayList<StoreItem> itemList;
-
     private ItemFilter itemFilter;
-    private ArrayList<StoreItem> filteredList;
+
+    private ArrayList<StoreItem> itemList;
+    private ArrayList<StoreItem> itemListFull;
 
     public ItemListAdapter(ShoppingActivity activity, ArrayList<StoreItem> itemList) {
         this.activity = activity;
         this.itemList = itemList;
-        filteredList = itemList;
+        itemListFull = new ArrayList<>(this.itemList);
         getFilter();
     }
 
@@ -75,10 +76,6 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
     }
 
 
-    public void setShoppingData(ArrayList<StoreItem> data) {
-        this.itemList = data;
-        notifyDataSetChanged();
-    }
 
     class ShopListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -110,7 +107,7 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
             if (constraint != null && constraint.length() > 0) {
                 ArrayList<StoreItem> tempList = new ArrayList<>();
 
-                for (StoreItem item : itemList) {
+                for (StoreItem item : itemListFull) {
                     if (item.name.contains(constraint)) {
                         tempList.add(item);
                     }
@@ -120,8 +117,8 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
                 filterResults.values = tempList;
 
             } else {
-                filterResults.count = itemList.size();
-                filterResults.values = itemList;
+                filterResults.count = itemListFull.size();
+                filterResults.values = itemListFull;
             }
 
             return filterResults;
@@ -129,7 +126,9 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-
+            itemList.clear();
+            itemList.addAll((List) results.values);
+            notifyDataSetChanged();
         }
     }
 

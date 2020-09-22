@@ -9,6 +9,7 @@ import android.widget.SearchView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scrollingactivity.R;
@@ -23,10 +24,16 @@ public class ShoppingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_shopping);
+        setUpRecyclerView();
+    }
+
+    private void setUpRecyclerView() {
         recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         itemListAdapter = new ItemListAdapter(this, ShopData.getAvailableItems());
+        recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(itemListAdapter);
     }
 
@@ -46,7 +53,6 @@ public class ShoppingActivity extends AppCompatActivity {
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-
                 return true;
             }
         });
@@ -80,5 +86,4 @@ public class ShoppingActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 }

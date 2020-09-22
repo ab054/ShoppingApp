@@ -1,8 +1,8 @@
 package com.example.scrollingactivity.ui.shop;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,16 +12,15 @@ import android.widget.Filterable;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scrollingactivity.R;
+import com.example.scrollingactivity.tools.Comparators;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
-
+@SuppressLint("NewApi")
 class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewHolder> implements Filterable {
 
     private final ShoppingActivity activity;
@@ -62,7 +61,7 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
     public void onBindViewHolder(@NonNull ShopListViewHolder holder, int position) {
         StoreItem item = itemList.get(position);
 
-        holder.itemImage.setImageResource(item.imageResourse);
+        holder.itemImage.setImageResource(item.imageResource);
         holder.itemName.setText(item.name);
         holder.itemCost.setText(String.valueOf(item.cost));
     }
@@ -78,47 +77,34 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
         return itemList.size();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortByNameDesc() {
-        itemList.sort(new Comparator<StoreItem>() {
-            @Override
-            public int compare(StoreItem o1, StoreItem o2) {
-                return o2.name.compareToIgnoreCase(o1.name);
-            }
-        });
+        itemList.sort(Comparators.byName());
         notifyDataSetChanged();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortByNameAsc() {
-        itemList.sort(new Comparator<StoreItem>() {
-            @Override
-            public int compare(StoreItem o1, StoreItem o2) {
-                return o1.name.compareToIgnoreCase(o2.name);
-            }
-        });
+        itemList.sort(Comparators.byNameAsc());
         notifyDataSetChanged();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortByCostDesc() {
-        itemList.sort(new Comparator<StoreItem>() {
-            @Override
-            public int compare(StoreItem o1, StoreItem o2) {
-                return o2.cost - o1.cost;
-            }
-        });
+        itemList.sort(Comparators.byCostDesc());
         notifyDataSetChanged();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     public void sortByCostAsc() {
-        itemList.sort(new Comparator<StoreItem>() {
-            @Override
-            public int compare(StoreItem o1, StoreItem o2) {
-                return o1.cost - o2.cost;
-            }
-        });
+        itemList.sort(Comparators.byCostAsc());
+        notifyDataSetChanged();
+    }
+
+    public void sortByDateDesc() {
+        itemList.sort(Comparators.byDateDesc());
+        notifyDataSetChanged();
+    }
+
+    public void sortByDateAsc() {
+        itemList.sort(Comparators.byDateAsc());
         notifyDataSetChanged();
     }
 

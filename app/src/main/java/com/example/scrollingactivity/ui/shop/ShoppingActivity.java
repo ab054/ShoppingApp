@@ -88,7 +88,6 @@ public class ShoppingActivity extends AppCompatActivity {
             return true;
         }
 
-
         if (id == R.id.sort_name_desc) {
             itemListAdapter.sortByNameDesc();
         }
@@ -104,6 +103,15 @@ public class ShoppingActivity extends AppCompatActivity {
         if (id == R.id.sort_cost_asc) {
             itemListAdapter.sortByCostAsc();
         }
+
+        if (id == R.id.sort_date_desc) {
+            itemListAdapter.sortByDateDesc();
+        }
+
+        if (id == R.id.sort_date_asc) {
+            itemListAdapter.sortByDateAsc();
+        }
+
 
         return super.onOptionsItemSelected(item);
     }

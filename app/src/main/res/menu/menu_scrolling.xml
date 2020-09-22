@@ -32,6 +32,17 @@
         android:title="@string/sort_cost_asc"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/sort_date_desc"
+        android:orderInCategory="1"
+        android:title="@string/sort_date_desc"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/sort_date_asc"
+        android:orderInCategory="1"
+        android:title="@string/sort_date_asc"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/search"

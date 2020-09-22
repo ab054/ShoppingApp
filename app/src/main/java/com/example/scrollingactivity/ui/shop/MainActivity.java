@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             costButton.setOnClickListener(click);
 
             ImageButton imageButton = myShopItem.findViewById(R.id.imageButton);
-            imageButton.setImageResource(data[i].imageResourse);
+            imageButton.setImageResource(data[i].imageResource);
 
             if (data[i].purchased == false) {
                 scrollViewItemList.addView(myShopItem);
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         costText.setText("$" + data[i].cost);
         purchaseItemCost = data[i].cost;
         dectCost.setText(data[i].description);
-        imageView.setImageResource(data[i].imageResourse);
+        imageView.setImageResource(data[i].imageResource);
 
     }
 

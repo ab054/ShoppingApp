@@ -14,4 +14,6 @@
     <string name="sort_name_asc">By Name Asc</string>
     <string name="sort_cost_desc">By Cost Desc</string>
     <string name="sort_cost_asc">By Cost Asc</string>
+    <string name="sort_date_desc">By Date Desc</string>
+    <string name="sort_date_asc">By Date Asc</string>
 </resources>

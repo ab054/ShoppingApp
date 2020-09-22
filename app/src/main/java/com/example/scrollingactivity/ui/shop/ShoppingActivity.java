@@ -2,12 +2,14 @@ package com.example.scrollingactivity.ui.shop;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SearchView;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -73,6 +75,7 @@ public class ShoppingActivity extends AppCompatActivity {
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -84,6 +87,24 @@ public class ShoppingActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+
+
+        if (id == R.id.sort_name_desc) {
+            itemListAdapter.sortByNameDesc();
+        }
+
+        if (id == R.id.sort_name_asc) {
+            itemListAdapter.sortByNameAsc();
+        }
+
+        if (id == R.id.sort_cost_desc) {
+            itemListAdapter.sortByCostDesc();
+        }
+
+        if (id == R.id.sort_cost_asc) {
+            itemListAdapter.sortByCostAsc();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 }

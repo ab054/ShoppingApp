@@ -9,6 +9,31 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/sort_name_desc"
+        android:orderInCategory="1"
+        android:title="@string/sort_name_desc"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/sort_name_asc"
+        android:orderInCategory="1"
+        android:title="@string/sort_name_asc"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/sort_cost_desc"
+        android:orderInCategory="1"
+        android:title="@string/sort_cost_desc"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/sort_cost_asc"
+        android:orderInCategory="1"
+        android:title="@string/sort_cost_asc"
+        app:showAsAction="ifRoom" />
+
+
+    <item
         android:id="@+id/search"
         android:title="Search"
         app:actionViewClass="android.widget.SearchView"

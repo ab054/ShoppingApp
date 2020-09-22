@@ -10,4 +10,8 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="action_settings">Settings</string>
+    <string name="sort_name_desc">By Name Desc</string>
+    <string name="sort_name_asc">By Name Asc</string>
+    <string name="sort_cost_desc">By Cost Desc</string>
+    <string name="sort_cost_asc">By Cost Asc</string>
 </resources>

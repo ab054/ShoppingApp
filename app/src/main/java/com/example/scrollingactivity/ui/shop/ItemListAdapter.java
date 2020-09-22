@@ -2,6 +2,7 @@ package com.example.scrollingactivity.ui.shop;
 
 
 import android.content.Context;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +12,13 @@ import android.widget.Filterable;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scrollingactivity.R;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -75,6 +78,49 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
         return itemList.size();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void sortByNameDesc() {
+        itemList.sort(new Comparator<StoreItem>() {
+            @Override
+            public int compare(StoreItem o1, StoreItem o2) {
+                return o2.name.compareToIgnoreCase(o1.name);
+            }
+        });
+        notifyDataSetChanged();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void sortByNameAsc() {
+        itemList.sort(new Comparator<StoreItem>() {
+            @Override
+            public int compare(StoreItem o1, StoreItem o2) {
+                return o1.name.compareToIgnoreCase(o2.name);
+            }
+        });
+        notifyDataSetChanged();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void sortByCostDesc() {
+        itemList.sort(new Comparator<StoreItem>() {
+            @Override
+            public int compare(StoreItem o1, StoreItem o2) {
+                return o2.cost - o1.cost;
+            }
+        });
+        notifyDataSetChanged();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void sortByCostAsc() {
+        itemList.sort(new Comparator<StoreItem>() {
+            @Override
+            public int compare(StoreItem o1, StoreItem o2) {
+                return o1.cost - o2.cost;
+            }
+        });
+        notifyDataSetChanged();
+    }
 
 
     class ShopListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

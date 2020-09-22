@@ -9,7 +9,7 @@
     </style>
 
     <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
+        <item name="windowActionBar">true</item>
         <item name="android:windowNoTitle">true</item>
 
     </style>

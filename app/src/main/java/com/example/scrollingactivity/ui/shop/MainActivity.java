@@ -1,31 +1,33 @@
 package com.example.scrollingactivity.ui.shop;
 
-import android.app.Activity;
 import android.app.Dialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
-
-import com.example.scrollingactivity.R;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.annotation.NonNull;
-
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 
-public class MainActivity extends Activity {
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProviders;
+
+import com.example.scrollingactivity.R;
+import com.example.scrollingactivity.ui.login.LoginViewModel;
+import com.example.scrollingactivity.ui.login.LoginViewModelFactory;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.snackbar.Snackbar;
+
+public class MainActivity extends AppCompatActivity {
 
 
     private MyCustomDialog customDialog;
@@ -35,53 +37,26 @@ public class MainActivity extends Activity {
     private int purchaseItemCost;
     private TextView balanceView;
 
-    public class ShopData{
-        public String name;
-        public int imageResourse;
-        public String description;
-        public int cost;
-        public boolean purchased;
+    public StoreItem[] data = FakeDataBase.getData();
+    private LoginViewModel loginViewModel;
+    private MenuItem searchItem;
+    private SearchView searchView;
 
-
-        public ShopData(String name, int imageResourse, String description, int cost, boolean purchased) {
-            this.name = name;
-            this.imageResourse = imageResourse;
-            this.description = description;
-            this.cost = cost;
-            this.purchased = purchased;
-        }
-    }
-
-    ShopData data[] = {
-            new ShopData("Bone", R.drawable.bone, "Good chew toy.", 1, false),
-            new ShopData("Carrot", R.drawable.carrot, "Good chew.", 1, false),
-            new ShopData("Dog", R.drawable.dog, "Chews toy.", 2, false),
-            new ShopData("Flame", R.drawable.flame, "Brown fox just jumps around with no use", 999, false),
-            new ShopData("Grapes", R.drawable.grapes, "Your eat them.", 1, false),
-            new ShopData("House", R.drawable.house, "As opposed to home.", 100, false),
-            new ShopData("Lamp", R.drawable.lamp, "It lights.", 2, false),
-            new ShopData("Mouse", R.drawable.mouse, "Not a rat.", 1, false),
-            new ShopData("Nail", R.drawable.nail, "Hammer required.", 1, false),
-            new ShopData("Penguin", R.drawable.penguin, "Find Batman.", 10, false),
-            new ShopData("Rocks", R.drawable.rocks, "Rolls.", 1, false),
-            new ShopData("Star", R.drawable.star, "Like the sun but farther away.", 25, false),
-            new ShopData("Toad", R.drawable.toad, "Like a frog.", 1, false),
-            new ShopData("Van", R.drawable.van, "Has four wheels.", 10, false),
-            new ShopData("Wheat", R.drawable.wheat, "Some breads have it.", 1, false),
-            new ShopData("Yak", R.drawable.yak, "Yakity Yak Yak.", 15, false),
-    };
-
-
-
-    private void initShopItems(){
+    private void initShopItems() {
         LayoutInflater inflater = LayoutInflater.from(this);
 
         scrollViewItemList = findViewById(R.id.scrollView);
 
         balanceView = findViewById(R.id.balance_textValue);
 
-        for(int i = 0; i < data.length; i++){
-            View myShopItem = inflater.inflate(R.layout.shop_item, null);
+        buildItemsList();
+
+        customDialog = new MyCustomDialog(this);
+    }
+
+    private void buildItemsList() {
+        for (int i = 0; i < data.length; i++) {
+            View myShopItem = LayoutInflater.from(this).inflate(R.layout.shop_item, null);
             final int tmp_id = i;
 
             Button.OnClickListener click = new Button.OnClickListener() {
@@ -107,8 +82,6 @@ public class MainActivity extends Activity {
                 scrollViewItemList.addView(myShopItem);
             }
         }
-
-        customDialog = new MyCustomDialog(this);
     }
 
     private void itemClicked(int i) {
@@ -128,7 +101,84 @@ public class MainActivity extends Activity {
 
     }
 
-    class MyCustomDialog extends Dialog{
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
+        CollapsingToolbarLayout toolBarLayout = findViewById(R.id.toolbar_layout);
+        toolBarLayout.setTitle(getTitle());
+        loginViewModel = ViewModelProviders.of(this, new LoginViewModelFactory())
+                .get(LoginViewModel.class);
+
+        Button addMoneyButton = findViewById(R.id.add_money_button);
+        addMoneyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addMoney();
+
+                Snackbar.make(view, "Balance increased by $100", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+
+            private void addMoney() {
+                int valletValue = Integer.parseInt(balanceView.getText().toString());
+                valletValue += 100;
+                balanceView.setText(String.valueOf(valletValue));
+            }
+        });
+
+        Button logoutButton = findViewById(R.id.btn_logout);
+
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loginViewModel.logout();
+                finish();
+            }
+        });
+
+        initShopItems();
+
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_scrolling, menu);
+
+        SearchManager searchManager = (SearchManager)
+                getSystemService(Context.SEARCH_SERVICE);
+        searchItem = menu.findItem(R.id.search);
+        searchView = (SearchView) searchItem.getActionView();
+        searchView.setSearchableInfo(searchManager.
+                getSearchableInfo(getComponentName()));
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                initShopItems();
+                return true;
+            }
+        });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+        return true;
+    }
+
+    class MyCustomDialog extends Dialog {
 
         public MyCustomDialog(@NonNull Context context) {
             super(context);
@@ -152,7 +202,7 @@ public class MainActivity extends Activity {
                     for (int i = 0; i < scrollViewItemList.getChildCount(); i ++){
                         View view = scrollViewItemList.getChildAt(i);
 
-                        TextView name = (TextView) view.findViewById(R.id.nameButton);
+                        TextView name = view.findViewById(R.id.nameButton);
                         if(name.getText().toString().equalsIgnoreCase(purchaseItemName)){
                             scrollViewItemList.removeView(view);
                             break;
@@ -186,45 +236,6 @@ public class MainActivity extends Activity {
                 }
             });
         }
-    }
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scrolling);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-        CollapsingToolbarLayout toolBarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-        toolBarLayout.setTitle(getTitle());
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addMoney();
-
-                Snackbar.make(view, "Balance increased by $100", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-
-            private void addMoney() {
-                int valletValue = Integer.parseInt(balanceView.getText().toString());
-                valletValue += 100;
-                balanceView.setText(String.valueOf(valletValue));
-            }
-        });
-
-        initShopItems();
-
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_scrolling, menu);
-        return true;
     }
 
     @Override

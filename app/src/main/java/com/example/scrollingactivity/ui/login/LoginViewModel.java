@@ -1,11 +1,10 @@
 package com.example.scrollingactivity.ui.login;
 
+import android.content.Context;
 import android.util.Patterns;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
 import com.example.scrollingactivity.R;
 import com.example.scrollingactivity.data.LoginRepository;
 import com.example.scrollingactivity.data.Result;
@@ -16,6 +15,7 @@ public class LoginViewModel extends ViewModel {
     private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();
     private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();
     private LoginRepository loginRepository;
+    private Context context;
 
     LoginViewModel(LoginRepository loginRepository) {
         this.loginRepository = loginRepository;
@@ -33,13 +33,16 @@ public class LoginViewModel extends ViewModel {
         loginRepository.logout();
     }
 
-    public void login(String username, String password) {
+    public void login(String username, String password, Context applicationContext) {
         // can be launched in a separate asynchronous job
+        loginRepository.setContext(applicationContext);
         Result<LoggedInUser> result = loginRepository.login(username, password);
+        this.context = applicationContext;
 
         if (result instanceof Result.Success) {
             LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
             loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
+
         } else {
             loginResult.setValue(new LoginResult(R.string.login_failed));
         }

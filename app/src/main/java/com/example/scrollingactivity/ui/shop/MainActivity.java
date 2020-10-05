@@ -1,6 +1,5 @@
 package com.example.scrollingactivity.ui.shop;
 
-import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -8,19 +7,14 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
-
 import com.example.scrollingactivity.R;
 import com.example.scrollingactivity.ui.login.LoginViewModel;
 import com.example.scrollingactivity.ui.login.LoginViewModelFactory;
@@ -30,7 +24,6 @@ import com.google.android.material.snackbar.Snackbar;
 public class MainActivity extends AppCompatActivity {
 
 
-    private MyCustomDialog customDialog;
     private LinearLayout scrollViewItemList;
     private int purchaseItemIndex;
     private String purchaseItemName;
@@ -51,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         buildItemsList();
 
-        customDialog = new MyCustomDialog(this);
+
     }
 
     private void buildItemsList() {
@@ -62,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             Button.OnClickListener click = new Button.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    itemClicked(tmp_id);
+                    //    itemClicked(tmp_id);
                 }
             };
 
@@ -84,22 +77,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void itemClicked(int i) {
-        customDialog.show();
-        TextView textView = customDialog.findViewById(R.id.item_name);
-        ImageView imageView = customDialog.findViewById(R.id.item_picture);
-        TextView costText = customDialog.findViewById(R.id.item_cost);
-        TextView dectCost = customDialog.findViewById(R.id.item_desc);
 
-        textView.setText(data[i].name);
-        purchaseItemName = data[i].name;
-        purchaseItemIndex = i;
-        costText.setText("$" + data[i].cost);
-        purchaseItemCost = data[i].cost;
-        dectCost.setText(data[i].description);
-        imageView.setImageResource(data[i].imageResource);
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,65 +156,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    class MyCustomDialog extends Dialog {
 
-        public MyCustomDialog(@NonNull Context context) {
-            super(context);
-        }
-
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-            setContentView(R.layout.dialog_box);
-
-            Button purchaseButton = findViewById(R.id.button_purchase);
-            Button cancelButton = findViewById(R.id.button_cancel);
-
-            purchaseButton.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    setItemPurchased(purchaseItemName);
-
-                    for (int i = 0; i < scrollViewItemList.getChildCount(); i ++){
-                        View view = scrollViewItemList.getChildAt(i);
-
-                        TextView name = view.findViewById(R.id.nameButton);
-                        if(name.getText().toString().equalsIgnoreCase(purchaseItemName)){
-                            scrollViewItemList.removeView(view);
-                            break;
-                        }
-                    }
-
-                    dismiss();
-                    substactBalance();
-                }
-
-                private void substactBalance() {
-                    int valletValue = Integer.parseInt(balanceView.getText().toString());
-                    valletValue = valletValue - purchaseItemCost;
-                    balanceView.setText(String.valueOf(valletValue));
-                }
-
-                private void setItemPurchased(String itemName) {
-                    for(int itemID = 0; itemID < data.length;  itemID++){
-                        if(data[itemID].name.equalsIgnoreCase(itemName)){
-                            data[itemID].purchased = true;
-                        }
-                    }
-                }
-
-            });
-
-            cancelButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dismiss();
-                }
-            });
-        }
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

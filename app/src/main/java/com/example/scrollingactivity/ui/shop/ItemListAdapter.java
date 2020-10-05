@@ -1,6 +1,5 @@
 package com.example.scrollingactivity.ui.shop;
 
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,10 +9,8 @@ import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.scrollingactivity.R;
 import com.example.scrollingactivity.tools.Comparators;
 
@@ -36,7 +33,6 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
         getFilter();
     }
 
-
     @Override
     public Filter getFilter() {
         if (itemFilter == null) {
@@ -46,7 +42,6 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
         return itemFilter;
     }
 
-
     @NonNull
     @Override
     public ShopListViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
@@ -54,18 +49,25 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
         int layoutIdForListItem = R.layout.shop_item;
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(layoutIdForListItem, viewGroup, false);
+
         return new ShopListViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ShopListViewHolder holder, int position) {
-        StoreItem item = itemList.get(position);
+    public void onBindViewHolder(@NonNull ShopListViewHolder holder, final int itemIndex) {
+        StoreItem item = itemList.get(itemIndex);
 
         holder.itemImage.setImageResource(item.imageResource);
         holder.itemName.setText(item.name);
         holder.itemCost.setText(String.valueOf(item.cost));
-    }
 
+        holder.itemCost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShoppingActivity.itemClicked(itemIndex);
+            }
+        });
+    }
 
     @Override
     public long getItemId(int position) {
@@ -92,7 +94,6 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
         notifyDataSetChanged();
     }
 
-
     public void sortByCostAsc() {
         itemList.sort(Comparators.byCostAsc());
         notifyDataSetChanged();
@@ -108,7 +109,6 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
         notifyDataSetChanged();
     }
 
-
     class ShopListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         final ImageButton itemImage;
@@ -121,8 +121,6 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
             itemImage = itemView.findViewById(R.id.imageButton);
             itemName = itemView.findViewById(R.id.nameButton);
             itemCost = itemView.findViewById(R.id.costButton);
-
-            itemView.setOnClickListener(this);
         }
 
         @Override

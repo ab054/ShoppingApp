@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class ShopData {
 
-    private static ArrayList<StoreItem> dataList;
+    private static ArrayList<StoreItem> dataList = new ArrayList<>();
 
     public static ArrayList<StoreItem> getAvailableItems() {
         StoreItem[] data = obtainDataFromBase();
@@ -13,9 +13,16 @@ public class ShopData {
         return dataList;
     }
 
+    public static void addItem(StoreItem item) {
+        dataList.add(item);
+    }
+
     private static void selectAllNotPurchased(StoreItem[] data) {
-        dataList = new ArrayList<>();
-        for (StoreItem each : data) if (!each.purchased) dataList.add(each);
+        for (StoreItem each : data) {
+            if (!each.purchased) {
+                dataList.add(each);
+            }
+        }
     }
 
     private static StoreItem[] obtainDataFromBase() {

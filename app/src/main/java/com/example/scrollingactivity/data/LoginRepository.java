@@ -1,7 +1,10 @@
 package com.example.scrollingactivity.data;
 
-
+import android.content.Context;
+import androidx.room.Room;
+import com.example.scrollingactivity.data.database.AppDatabase;
 import com.example.scrollingactivity.data.model.LoggedInUser;
+import com.example.scrollingactivity.data.model.User;
 
 /**
  * Class that requests authentication and user information from the remote data source and
@@ -16,6 +19,7 @@ public class LoginRepository {
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
     private LoggedInUser user = null;
+    private Context context;
 
     // private constructor : singleton access
     private LoginRepository(LoginDataSource dataSource) {
@@ -40,8 +44,23 @@ public class LoginRepository {
 
     private void setLoggedInUser(LoggedInUser user) {
         this.user = user;
-        // If user credentials will be cached in local storage, it is recommended it be encrypted
-        // @see https://developer.android.com/training/articles/keystore
+        recordToDB(user);
+    }
+
+    private void recordToDB(LoggedInUser user) {
+        final AppDatabase db = Room.databaseBuilder(context,
+            AppDatabase.class, "database-name").build();
+
+        final User newUser = new User(user.getUserId(), user.getDisplayName());
+
+        Thread insert = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                db.userDao().insertUsers(newUser);
+            }
+        });
+        insert.start();
+
     }
 
     public Result<LoggedInUser> login(String username, String password) {
@@ -51,5 +70,9 @@ public class LoginRepository {
             setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
         }
         return result;
+    }
+
+    public void setContext(Context applicationContext) {
+        this.context = applicationContext;
     }
 }

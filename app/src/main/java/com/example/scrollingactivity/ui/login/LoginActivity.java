@@ -13,16 +13,13 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-
 import com.example.scrollingactivity.R;
-import com.example.scrollingactivity.ui.shop.MainActivity;
-
+import com.example.scrollingactivity.ui.shop.ShoppingActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -70,11 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                     updateUiWithUser(loginResult.getSuccess());
                 }
                 setResult(Activity.RESULT_OK);
-
-                //Complete and destroy login activity once successful
-                //finish();
-
-                startActivityForResult(new Intent(LoginActivity.this , MainActivity.class), 200);
+                startActivityForResult(new Intent(LoginActivity.this, ShoppingActivity.class), 200);
             }
         });
 
@@ -103,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     loginViewModel.login(usernameEditText.getText().toString(),
-                            passwordEditText.getText().toString());
+                        passwordEditText.getText().toString(), getApplicationContext());
                 }
                 return false;
             }
@@ -114,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 loadingProgressBar.setVisibility(View.VISIBLE);
                 loginViewModel.login(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
+                    passwordEditText.getText().toString(), getApplicationContext());
             }
         });
     }

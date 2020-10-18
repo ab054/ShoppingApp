@@ -1,6 +1,7 @@
-package com.alexShop.data.model
+package com.alexShop.data.daos
 
 import androidx.room.*
+import com.alexShop.data.model.User
 
 @Dao
 interface UserDao {

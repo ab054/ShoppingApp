@@ -1,8 +1,5 @@
 package com.alexShop.ui.shop;
 
-import static com.alexShop.ui.shop.ShopData.addItem;
-import static com.alexShop.ui.shop.ShopData.getAvailableItems;
-
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -24,6 +21,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.alexShop.R;
+import com.alexShop.data.DBHelper;
 import com.alexShop.ui.login.LoginViewModel;
 import com.alexShop.ui.login.LoginViewModelFactory;
 import com.android.volley.Request;
@@ -39,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,6 +54,7 @@ public class ShoppingActivity extends AppCompatActivity {
     private static int purchaseItemIndex;
     private TextView balanceView;
     private LoginViewModel loginViewModel;
+    private static DBHelper dbHelper;
 
     public static void itemClicked(int itemIndex) {
         customDialog.show();
@@ -63,13 +63,15 @@ public class ShoppingActivity extends AppCompatActivity {
         TextView costText = customDialog.findViewById(R.id.item_cost);
         TextView dectCost = customDialog.findViewById(R.id.item_desc);
 
-        textView.setText(getAvailableItems().get(itemIndex).name);
-        purchaseItemName = getAvailableItems().get(itemIndex).name;
+        ArrayList<StoreItem> availableItems = dbHelper.getAvailableItems();
+
+        textView.setText(availableItems.get(itemIndex).name);
+        purchaseItemName = availableItems.get(itemIndex).name;
         purchaseItemIndex = itemIndex;
-        costText.setText("$" + getAvailableItems().get(itemIndex).cost);
-        purchaseItemCost = getAvailableItems().get(itemIndex).cost;
-        dectCost.setText(getAvailableItems().get(itemIndex).description);
-        imageView.setImageResource(getAvailableItems().get(itemIndex).imageResource);
+        costText.setText("$" + availableItems.get(itemIndex).cost);
+        purchaseItemCost = availableItems.get(itemIndex).cost;
+        dectCost.setText(availableItems.get(itemIndex).description);
+        imageView.setImageResource(availableItems.get(itemIndex).imageResource);
     }
 
     @Override
@@ -78,6 +80,7 @@ public class ShoppingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_shopping);
         StringRequest request = new StringRequest(Request.Method.GET, GET_SHOPPING_LIST, getListener(),
             getErrorListener());
+        dbHelper = new DBHelper(getApplicationContext());
         setUpRecyclerView();
         customDialog = new MyCustomDialog(this);
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -133,9 +136,20 @@ public class ShoppingActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        itemListAdapter = new ItemListAdapter(this, getAvailableItems());
+        itemListAdapter = new ItemListAdapter(this, loadItemsFromDB());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(itemListAdapter);
+    }
+
+    private ArrayList<StoreItem> loadItemsFromDB() {
+        ArrayList<StoreItem> availableItems = dbHelper.getAvailableItems();
+        Logger.getAnonymousLogger().log(Level.INFO, "LOADING ITEMS");
+        if (availableItems == null || availableItems.isEmpty()) {
+            dbHelper.reloadFromFile();
+            availableItems = dbHelper.getAvailableItems();
+        }
+
+        return availableItems;
     }
 
     @NotNull
@@ -160,7 +174,7 @@ public class ShoppingActivity extends AppCompatActivity {
                         Field idField = R.drawable.class.getDeclaredField(image);
                         int anInt = idField.getInt(idField);
 
-                        addItem(new StoreItem(name, anInt, description, cost, false));
+                        dbHelper.addItem(new StoreItem(name, anInt, description, cost, false));
                     }
                 } catch (JSONException e) {
                     Logger.getAnonymousLogger().log(Level.WARNING, e.getStackTrace().toString());
@@ -313,13 +327,7 @@ public class ShoppingActivity extends AppCompatActivity {
         }
 
         private void setItemPurchased(String itemName) {
-            for (int itemID = 0; itemID < FakeDataBase.getData().size(); itemID++) {
-                StoreItem currentItem = FakeDataBase.getData().get(itemID);
-                if (currentItem.name.equalsIgnoreCase(itemName)) {
-                    currentItem.purchased = true;
-                    break;
-                }
-            }
+            dbHelper.setItemPurchased(itemName);
         }
     }
 }

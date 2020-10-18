@@ -115,7 +115,6 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
 
         ShopListViewHolder(@NonNull View itemView) {
             super(itemView);
-
             itemImage = itemView.findViewById(R.id.imageButton);
             itemName = itemView.findViewById(R.id.nameButton);
             itemCost = itemView.findViewById(R.id.costButton);

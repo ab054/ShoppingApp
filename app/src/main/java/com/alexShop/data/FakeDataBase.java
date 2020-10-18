@@ -1,6 +1,7 @@
-package com.alexShop.ui.shop;
+package com.alexShop.data;
 
 import com.alexShop.R;
+import com.alexShop.ui.shop.StoreItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;

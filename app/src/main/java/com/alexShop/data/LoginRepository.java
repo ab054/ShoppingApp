@@ -41,7 +41,7 @@ public class LoginRepository {
         dataSource.logout();
     }
 
-    private void setLoggedInUser(LoggedInUser user) {
+    public void setLoggedInUser(LoggedInUser user) {
         this.user = user;
         addUserToDB(user);
         getAllUsers();

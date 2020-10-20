@@ -30,7 +30,7 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
     public ItemListAdapter(ShoppingActivity activity, ArrayList<StoreItem> itemList) {
         this.activity = activity;
         this.itemList = itemList;
-        itemListFull = null;
+        itemListFull = itemList == null ? null : new ArrayList<>(itemList);
         getFilter();
     }
 
@@ -112,6 +112,7 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
 
     public void setShopData(StoreItem[] data) {
         itemList = new ArrayList<>(Arrays.asList(data));
+        itemListFull = new ArrayList<>(itemList);
         notifyDataSetChanged();
     }
 

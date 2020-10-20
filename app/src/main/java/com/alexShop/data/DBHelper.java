@@ -4,6 +4,7 @@ import android.content.Context;
 import androidx.room.Room;
 import com.alexShop.data.model.User;
 import com.alexShop.ui.shop.StoreItem;
+import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -49,22 +50,16 @@ public class DBHelper {
         insert.start();
     }
 
-    public ArrayList<StoreItem> getAvailableItems() {
+    public void getAvailableItems(final Function1<ArrayList<StoreItem>, Object> function) {
         final ApplicationDB storeItemDB = getApplicationDB();
-        final StoreItem[][] storeItems = {null};
         Thread insert = new Thread(new Runnable() {
             @Override
             public void run() {
-                storeItems[0] = storeItemDB.storeItemDao().getAvailable();
+                ArrayList<StoreItem> result = new ArrayList<>(Arrays.asList(storeItemDB.storeItemDao().getAvailable()));
+                function.invoke(result);
             }
         });
         insert.start();
-
-        if (storeItems[0] == null) {
-            return null;
-        }
-
-        return new ArrayList<>(Arrays.asList(storeItems[0]));
     }
 
     public ArrayList<StoreItem> getAllItems() {
@@ -92,7 +87,6 @@ public class DBHelper {
             Thread insert = new Thread(new Runnable() {
                 @Override
                 public void run() {
-
                     storeItemDB.storeItemDao().insertItems(each);
                 }
             });

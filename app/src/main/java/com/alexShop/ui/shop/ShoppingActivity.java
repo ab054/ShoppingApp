@@ -31,6 +31,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.snackbar.Snackbar;
+import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,23 +56,34 @@ public class ShoppingActivity extends AppCompatActivity {
     private TextView balanceView;
     private LoginViewModel loginViewModel;
     private static DBHelper dbHelper;
+    private ArrayList<StoreItem> availableItems;
 
-    public static void itemClicked(int itemIndex) {
+    public static void itemClicked(final int itemIndex) {
         customDialog.show();
-        TextView textView = customDialog.findViewById(R.id.item_name);
-        ImageView imageView = customDialog.findViewById(R.id.item_picture);
-        TextView costText = customDialog.findViewById(R.id.item_cost);
-        TextView dectCost = customDialog.findViewById(R.id.item_desc);
+        final TextView textView = customDialog.findViewById(R.id.item_name);
+        final ImageView imageView = customDialog.findViewById(R.id.item_picture);
+        final TextView costText = customDialog.findViewById(R.id.item_cost);
+        final TextView dectCost = customDialog.findViewById(R.id.item_desc);
 
-        ArrayList<StoreItem> availableItems = dbHelper.getAvailableItems();
+        final ArrayList<StoreItem>[] availableItems = new ArrayList[]{null};
 
-        textView.setText(availableItems.get(itemIndex).name);
-        purchaseItemName = availableItems.get(itemIndex).name;
-        purchaseItemIndex = itemIndex;
-        costText.setText("$" + availableItems.get(itemIndex).cost);
-        purchaseItemCost = availableItems.get(itemIndex).cost;
-        dectCost.setText(availableItems.get(itemIndex).description);
-        imageView.setImageResource(availableItems.get(itemIndex).imageResource);
+        dbHelper.getAvailableItems(new Function1<ArrayList<StoreItem>, Object>() {
+            @Override
+            public ArrayList<StoreItem> invoke(ArrayList<StoreItem> result) {
+                availableItems[0] = result;
+
+                textView.setText(availableItems[0].get(itemIndex).name);
+                purchaseItemName = availableItems[0].get(itemIndex).name;
+                purchaseItemIndex = itemIndex;
+                costText.setText("$" + availableItems[0].get(itemIndex).cost);
+                purchaseItemCost = availableItems[0].get(itemIndex).cost;
+                dectCost.setText(availableItems[0].get(itemIndex).description);
+                imageView.setImageResource(availableItems[0].get(itemIndex).imageResource);
+
+                return null;
+            }
+        });
+
     }
 
     @Override
@@ -142,12 +154,26 @@ public class ShoppingActivity extends AppCompatActivity {
     }
 
     private ArrayList<StoreItem> loadItemsFromDB() {
-        ArrayList<StoreItem> availableItems = dbHelper.getAvailableItems();
-        Logger.getAnonymousLogger().log(Level.INFO, "LOADING ITEMS");
-        if (availableItems == null || availableItems.isEmpty()) {
-            dbHelper.reloadFromFile();
-            availableItems = dbHelper.getAvailableItems();
-        }
+        dbHelper.getAvailableItems(new Function1<ArrayList<StoreItem>, Object>() {
+            @Override
+            public Object invoke(ArrayList<StoreItem> storeItems) {
+                Logger.getAnonymousLogger().log(Level.INFO, "LOADING ITEMS");
+                if (storeItems == null || storeItems.isEmpty()) {
+                    dbHelper.reloadFromFile();
+                    return null;
+                }
+
+                return null;
+            }
+        });
+
+        dbHelper.getAvailableItems(new Function1<ArrayList<StoreItem>, Object>() {
+            @Override
+            public Object invoke(ArrayList<StoreItem> storeItems) {
+                availableItems = storeItems;
+                return null;
+            }
+        });
 
         return availableItems;
     }

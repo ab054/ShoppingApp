@@ -7,6 +7,7 @@
         tools:context=".ui.shop.ShoppingActivity">
 
     <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -63,5 +64,19 @@
             android:paddingBottom="10dp"
             app:layout_constraintEnd_toEndOf="@id/recycler_view"
             app:layout_constraintStart_toStartOf="@id/recycler_view"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+            android:id="@+id/pb_loading_indicator"
+            android:layout_width="72dp"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="330dp"
+            android:layout_marginBottom="330dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

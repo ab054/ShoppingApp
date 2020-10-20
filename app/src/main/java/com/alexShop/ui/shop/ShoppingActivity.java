@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -18,6 +19,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.alexShop.R;
@@ -41,9 +45,10 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ShoppingActivity extends AppCompatActivity {
+public class ShoppingActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<StoreItem[]> {
 
     private static final String GET_SHOPPING_LIST = "http://10.0.2.2:5005/list";
+    private static final int ITEM_LIST_LOADER_ID = 0;
     private RecyclerView recyclerView;
     private ItemListAdapter itemListAdapter;
     private MenuItem searchItem;
@@ -55,6 +60,7 @@ public class ShoppingActivity extends AppCompatActivity {
     private TextView balanceView;
     private LoginViewModel loginViewModel;
     private static DBHelper dbHelper;
+    private ProgressBar mLoadingIndicator;
 
     public static void itemClicked(int itemIndex) {
         customDialog.show();
@@ -82,6 +88,7 @@ public class ShoppingActivity extends AppCompatActivity {
             getErrorListener());
         dbHelper = new DBHelper(getApplicationContext());
         setUpRecyclerView();
+        mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
         customDialog = new MyCustomDialog(this);
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(request);
@@ -136,20 +143,14 @@ public class ShoppingActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        itemListAdapter = new ItemListAdapter(this, loadItemsFromDB());
+        Bundle bundleForLoader = null;
+        int loaderId = ITEM_LIST_LOADER_ID;
+        LoaderManager.LoaderCallbacks<StoreItem[]> callback = ShoppingActivity.this;
+        getSupportLoaderManager().initLoader(loaderId, bundleForLoader, callback);
+
+        itemListAdapter = new ItemListAdapter(this, null);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(itemListAdapter);
-    }
-
-    private ArrayList<StoreItem> loadItemsFromDB() {
-        ArrayList<StoreItem> availableItems = dbHelper.getAvailableItems();
-        Logger.getAnonymousLogger().log(Level.INFO, "LOADING ITEMS");
-        if (availableItems == null || availableItems.isEmpty()) {
-            dbHelper.reloadFromFile();
-            availableItems = dbHelper.getAvailableItems();
-        }
-
-        return availableItems;
     }
 
     @NotNull
@@ -263,6 +264,59 @@ public class ShoppingActivity extends AppCompatActivity {
         });
 
         return true;
+    }
+
+    @NonNull
+    @Override
+    public Loader<StoreItem[]> onCreateLoader(int id, @Nullable Bundle args) {
+        return new AsyncTaskLoader<StoreItem[]>(this) {
+
+            StoreItem[] mShopData = null;
+
+            @Override
+            protected void onStartLoading() {
+                if (mShopData != null) {
+                    deliverResult(mShopData);
+                } else {
+                    mLoadingIndicator.setVisibility(View.VISIBLE);
+                    forceLoad();
+                }
+            }
+
+            @Nullable
+            @Override
+            public StoreItem[] loadInBackground() {
+                ArrayList<StoreItem> availableItems = dbHelper.getAvailableItems();
+                Logger.getAnonymousLogger().log(Level.INFO, "LOADING ITEMS");
+                if (availableItems == null || availableItems.isEmpty()) {
+                    dbHelper.reloadFromFile();
+                    availableItems = dbHelper.getAvailableItems();
+                }
+
+                return availableItems.toArray(new StoreItem[]{});
+            }
+
+            public void deliverResult(StoreItem[] data) {
+                mShopData = data;
+                super.deliverResult(data);
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<StoreItem[]> loader, StoreItem[] data) {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        itemListAdapter.setShopData(data);
+        if (null == data) {
+            recyclerView.setVisibility(View.INVISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<StoreItem[]> loader) {
+
     }
 
     class MyCustomDialog extends Dialog {

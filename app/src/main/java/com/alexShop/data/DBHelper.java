@@ -51,20 +51,11 @@ public class DBHelper {
 
     public ArrayList<StoreItem> getAvailableItems() {
         final ApplicationDB storeItemDB = getApplicationDB();
-        final StoreItem[][] storeItems = {null};
-        Thread insert = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                storeItems[0] = storeItemDB.storeItemDao().getAvailable();
-            }
-        });
-        insert.start();
-
-        if (storeItems[0] == null) {
+        StoreItem[] storeItems = storeItemDB.storeItemDao().getAvailable();
+        if (storeItems == null) {
             return null;
         }
-
-        return new ArrayList<>(Arrays.asList(storeItems[0]));
+        return new ArrayList<>(Arrays.asList(storeItems));
     }
 
     public ArrayList<StoreItem> getAllItems() {

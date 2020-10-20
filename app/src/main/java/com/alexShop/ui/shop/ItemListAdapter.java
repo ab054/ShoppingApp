@@ -15,6 +15,7 @@ import com.alexShop.R;
 import com.alexShop.tools.Comparators;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @SuppressLint("NewApi")
@@ -29,7 +30,7 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
     public ItemListAdapter(ShoppingActivity activity, ArrayList<StoreItem> itemList) {
         this.activity = activity;
         this.itemList = itemList;
-        itemListFull = new ArrayList<>(this.itemList);
+        itemListFull = null;
         getFilter();
     }
 
@@ -58,7 +59,6 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
         holder.itemImage.setImageResource(item.imageResource);
         holder.itemName.setText(item.name);
         holder.itemCost.setText(String.valueOf(item.cost));
-
         holder.itemCost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,6 +74,9 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
 
     @Override
     public int getItemCount() {
+        if (null == itemList) {
+            return 0;
+        }
         return itemList.size();
     }
 
@@ -104,6 +107,11 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
 
     public void sortByDateAsc() {
         itemList.sort(Comparators.byDateAsc());
+        notifyDataSetChanged();
+    }
+
+    public void setShopData(StoreItem[] data) {
+        itemList = new ArrayList<>(Arrays.asList(data));
         notifyDataSetChanged();
     }
 

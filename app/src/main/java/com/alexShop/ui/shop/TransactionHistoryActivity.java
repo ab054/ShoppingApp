@@ -50,20 +50,6 @@ public class TransactionHistoryActivity extends AppCompatActivity {
 
         listView.setAdapter(adapter);
 
-//        for(Transaction each : arrayList){
-//            View item = findViewById(R.id.transaction_item);
-//
-//            TextView time = item.findViewById(R.id.trans_time);
-//            TextView cost = item.findViewById(R.id.trans_cost);
-//            TextView name = item.findViewById(R.id.trans_name);
-//
-//            time.setText(each.timestamp);
-//            cost.setText(each.itemCost);
-//            name.setText(each.itemName);
-//
-//            listView.addView(item);
-//        }
-
     }
 
     private class Transaction {

@@ -83,7 +83,6 @@ public class DBHelper {
             Thread insert = new Thread(new Runnable() {
                 @Override
                 public void run() {
-
                     storeItemDB.storeItemDao().insertItems(each);
                 }
             });

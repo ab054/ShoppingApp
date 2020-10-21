@@ -62,24 +62,6 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
     private static DBHelper dbHelper;
     private ProgressBar mLoadingIndicator;
 
-    public static void itemClicked(int itemIndex) {
-        customDialog.show();
-        TextView textView = customDialog.findViewById(R.id.item_name);
-        ImageView imageView = customDialog.findViewById(R.id.item_picture);
-        TextView costText = customDialog.findViewById(R.id.item_cost);
-        TextView dectCost = customDialog.findViewById(R.id.item_desc);
-
-        ArrayList<StoreItem> availableItems = dbHelper.getAvailableItems();
-
-        textView.setText(availableItems.get(itemIndex).name);
-        purchaseItemName = availableItems.get(itemIndex).name;
-        purchaseItemIndex = itemIndex;
-        costText.setText("$" + availableItems.get(itemIndex).cost);
-        purchaseItemCost = availableItems.get(itemIndex).cost;
-        dectCost.setText(availableItems.get(itemIndex).description);
-        imageView.setImageResource(availableItems.get(itemIndex).imageResource);
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,7 +69,7 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
         StringRequest request = new StringRequest(Request.Method.GET, GET_SHOPPING_LIST, getListener(),
             getErrorListener());
         dbHelper = new DBHelper(getApplicationContext());
-        setUpRecyclerView();
+        initRecyclerView();
         mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
         customDialog = new MyCustomDialog(this);
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -139,7 +121,7 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
         };
     }
 
-    private void setUpRecyclerView() {
+    private void initRecyclerView() {
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
@@ -151,6 +133,31 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
         itemListAdapter = new ItemListAdapter(this, null);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(itemListAdapter);
+        itemListAdapter.setListener(new ItemListClickListener() {
+            @Override
+            public void onItemButtonClick(int itemIndex) {
+                itemClicked(itemIndex);
+            }
+        });
+    }
+
+    public void itemClicked(int itemIndex) {
+        customDialog.show();
+        TextView textView = customDialog.findViewById(R.id.item_name);
+        ImageView imageView = customDialog.findViewById(R.id.item_picture);
+        TextView costText = customDialog.findViewById(R.id.item_cost);
+        TextView dectCost = customDialog.findViewById(R.id.item_desc);
+
+        ArrayList<StoreItem> availableItems = itemListAdapter.getItemList();
+        StoreItem storeItem = availableItems.get(itemIndex);
+
+        textView.setText(storeItem.name);
+        purchaseItemName = storeItem.name;
+        purchaseItemIndex = itemIndex;
+        costText.setText("$" + storeItem.cost);
+        purchaseItemCost = storeItem.cost;
+        dectCost.setText(storeItem.description);
+        imageView.setImageResource(storeItem.imageResource);
     }
 
     @NotNull
@@ -354,9 +361,9 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
 
         @Override
         public void onClick(View v) {
-            setItemPurchased(purchaseItemName);
-            removeView();
+            updateDBItemPurchased(purchaseItemName);
             myCustomDialog.dismiss();
+            removeView();
             subtractBalance();
         }
 
@@ -366,6 +373,7 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
                 TextView name = view.findViewById(R.id.nameButton);
                 if (name.getText().toString().equalsIgnoreCase(purchaseItemName)) {
                     recyclerView.removeView(view);
+                    itemListAdapter.getItemList().remove(i);
                     itemListAdapter.notifyItemRemoved(i);
                     itemListAdapter.notifyItemRangeChanged(i, recyclerView.getAdapter().getItemCount());
                     break;
@@ -380,7 +388,7 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
             balanceView.setText(String.valueOf(valletValue));
         }
 
-        private void setItemPurchased(String itemName) {
+        private void updateDBItemPurchased(String itemName) {
             dbHelper.setItemPurchased(itemName);
         }
     }

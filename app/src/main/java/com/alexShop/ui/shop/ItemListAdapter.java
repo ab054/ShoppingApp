@@ -19,13 +19,16 @@ import java.util.Arrays;
 import java.util.List;
 
 @SuppressLint("NewApi")
-class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewHolder> implements Filterable {
+class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewHolder> implements Filterable,
+    ItemListClickListener {
 
     private final ShoppingActivity activity;
     private ItemFilter itemFilter;
 
     private ArrayList<StoreItem> itemList;
     private ArrayList<StoreItem> itemListFull;
+
+    private ItemListClickListener listener;
 
     public ItemListAdapter(ShoppingActivity activity, ArrayList<StoreItem> itemList) {
         this.activity = activity;
@@ -59,10 +62,11 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
         holder.itemImage.setImageResource(item.imageResource);
         holder.itemName.setText(item.name);
         holder.itemCost.setText(String.valueOf(item.cost));
+
         holder.itemCost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ShoppingActivity.itemClicked(itemIndex);
+                listener.onItemButtonClick(itemIndex);
             }
         });
     }
@@ -116,7 +120,20 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
         notifyDataSetChanged();
     }
 
-    class ShopListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public void setListener(ItemListClickListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void onItemButtonClick(int itemIndex) {
+        listener.onItemButtonClick(itemIndex);
+    }
+
+    public ArrayList<StoreItem> getItemList() {
+        return itemList;
+    }
+
+    class ShopListViewHolder extends RecyclerView.ViewHolder {
 
         final ImageButton itemImage;
         final Button itemName;
@@ -127,11 +144,6 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
             itemImage = itemView.findViewById(R.id.imageButton);
             itemName = itemView.findViewById(R.id.nameButton);
             itemCost = itemView.findViewById(R.id.costButton);
-        }
-
-        @Override
-        public void onClick(View v) {
-
         }
     }
 
@@ -144,7 +156,7 @@ class ItemListAdapter extends RecyclerView.Adapter<ItemListAdapter.ShopListViewH
                 ArrayList<StoreItem> tempList = new ArrayList<>();
 
                 for (StoreItem item : itemListFull) {
-                    if (item.name.contains(constraint)) {
+                    if (item.name.toLowerCase().contains(constraint.toString().toLowerCase())) {
                         tempList.add(item);
                     }
                 }

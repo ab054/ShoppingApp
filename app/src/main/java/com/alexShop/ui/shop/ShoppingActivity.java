@@ -3,6 +3,8 @@ package com.alexShop.ui.shop;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -32,6 +34,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.snackbar.Snackbar;
@@ -42,12 +45,17 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ShoppingActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<StoreItem[]> {
 
-    private static final String GET_SHOPPING_LIST = "http://10.0.2.2:5005/list";
+    private static final String SERVER_ADDRESS = "http://10.0.2.2:5005";
+    private static final String GET_SHOPPING_LIST = SERVER_ADDRESS + "/list";
+    private static final String POST_BUY_URL = SERVER_ADDRESS + "/buy";
     private static final int ITEM_LIST_LOADER_ID = 0;
     private RecyclerView recyclerView;
     private ItemListAdapter itemListAdapter;
@@ -233,6 +241,10 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
             itemListAdapter.sortByDateAsc();
         }
 
+        if (id == R.id.transaction_history) {
+            startActivityForResult(new Intent(ShoppingActivity.this, TransactionHistoryActivity.class), 200);
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -351,6 +363,44 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
         }
     }
 
+    private void saveToPreferences(String purchaseItemName, int purchaseItemCost) {
+        SharedPreferences sharedPref = getSharedPreferences("Transactions", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        List<String> strings = Arrays.asList(purchaseItemName, String.valueOf(purchaseItemCost));
+        editor.putStringSet(String.valueOf(System.currentTimeMillis()), new HashSet<>(strings));
+        editor.apply();
+    }
+
+    private void sendPurchasedItemToServer(String purchaseItemName, int purchaseItemCost) {
+        JSONObject jsonBody = getBuyBody(purchaseItemName, purchaseItemCost);
+
+        JsonObjectRequest request = new JsonObjectRequest(POST_BUY_URL, jsonBody, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
+        requestQueue.add(request);
+    }
+
+    private JSONObject getBuyBody(String purchaseItemName, int purchaseItemCost) {
+        String requestBody = "{\"name\":\"" + purchaseItemName + "\",\"price\":\"" + purchaseItemCost + "\"}";
+        JSONObject jsonBody = null;
+        try {
+            jsonBody = new JSONObject(requestBody);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonBody;
+    }
+
     class MyPurchaseClickListener implements View.OnClickListener {
 
         private final MyCustomDialog myCustomDialog;
@@ -375,6 +425,8 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
 
                     if (itemListAdapter.getItemList().get(i).quantity > 0) {
                         int quantity = --itemListAdapter.getItemList().get(i).quantity;
+                        sendPurchasedItemToServer(purchaseItemName, purchaseItemCost);
+                        saveToPreferences(purchaseItemName, purchaseItemCost);
 
                         if (quantity == 0) {
                             recyclerView.removeView(view);

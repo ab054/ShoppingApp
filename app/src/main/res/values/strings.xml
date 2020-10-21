@@ -16,4 +16,5 @@
     <string name="sort_cost_asc">By Cost Asc</string>
     <string name="sort_date_desc">By Date Desc</string>
     <string name="sort_date_asc">By Date Asc</string>
+    <string name="trans_history_value">Transaction History</string>
 </resources>

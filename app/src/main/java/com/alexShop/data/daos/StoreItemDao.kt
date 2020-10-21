@@ -5,10 +5,10 @@ import com.alexShop.ui.shop.StoreItem
 
 @Dao
 interface StoreItemDao {
-    @Query("SELECT * FROM storeItem WHERE purchased <> 1")
+    @Query("SELECT * FROM storeItem WHERE quantity > 0")
     fun getAvailable(): Array<StoreItem>
 
-    @Query("UPDATE storeItem SET purchased = 1 WHERE name = :itemName")
+    @Query("UPDATE storeItem SET quantity = quantity - 1 WHERE name = :itemName")
     fun setItemPurchased(itemName: String)
 
     @Query("SELECT * FROM storeItem")
@@ -19,6 +19,9 @@ interface StoreItemDao {
 
     @Delete
     fun deleteItem(item: StoreItem)
+
+    @Query("DELETE FROM StoreItem")
+    fun deleteAll()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertItems(item: StoreItem)

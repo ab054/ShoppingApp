@@ -182,7 +182,7 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
                         Field idField = R.drawable.class.getDeclaredField(image);
                         int anInt = idField.getInt(idField);
 
-                        dbHelper.addItem(new StoreItem(name, anInt, description, cost, false));
+                        dbHelper.addItem(new StoreItem(name, anInt, description, cost, 1));
                     }
                 } catch (JSONException e) {
                     Logger.getAnonymousLogger().log(Level.WARNING, e.getStackTrace().toString());
@@ -295,7 +295,7 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
             public StoreItem[] loadInBackground() {
                 ArrayList<StoreItem> availableItems = dbHelper.getAvailableItems();
                 Logger.getAnonymousLogger().log(Level.INFO, "LOADING ITEMS");
-                if (availableItems == null || availableItems.isEmpty()) {
+                if (availableItems.size() < 3) {
                     dbHelper.reloadFromFile();
                     availableItems = dbHelper.getAvailableItems();
                 }
@@ -372,10 +372,17 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
                 View view = recyclerView.getChildAt(i);
                 TextView name = view.findViewById(R.id.nameButton);
                 if (name.getText().toString().equalsIgnoreCase(purchaseItemName)) {
-                    recyclerView.removeView(view);
-                    itemListAdapter.getItemList().remove(i);
-                    itemListAdapter.notifyItemRemoved(i);
-                    itemListAdapter.notifyItemRangeChanged(i, recyclerView.getAdapter().getItemCount());
+
+                    if (itemListAdapter.getItemList().get(i).quantity > 0) {
+                        int quantity = --itemListAdapter.getItemList().get(i).quantity;
+
+                        if (quantity == 0) {
+                            recyclerView.removeView(view);
+                            itemListAdapter.getItemList().remove(i);
+                            itemListAdapter.notifyItemRemoved(i);
+                            itemListAdapter.notifyItemRangeChanged(i, recyclerView.getAdapter().getItemCount());
+                        }
+                    }
                     break;
                 }
             }
@@ -383,9 +390,9 @@ public class ShoppingActivity extends AppCompatActivity implements LoaderManager
         }
 
         private void subtractBalance() {
-            int valletValue = Integer.parseInt(balanceView.getText().toString());
-            valletValue = valletValue - purchaseItemCost;
-            balanceView.setText(String.valueOf(valletValue));
+            int walletValue = Integer.parseInt(balanceView.getText().toString());
+            walletValue = walletValue - purchaseItemCost;
+            balanceView.setText(String.valueOf(walletValue));
         }
 
         private void updateDBItemPurchased(String itemName) {

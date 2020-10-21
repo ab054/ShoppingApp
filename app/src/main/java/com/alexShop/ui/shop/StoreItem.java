@@ -19,14 +19,14 @@ public class StoreItem {
     public int imageResource;
     public String description;
     public int cost;
-    public boolean purchased;
+    public int quantity;
 
-    public StoreItem(String name, int imageResource, String description, int cost, boolean purchased) {
+    public StoreItem(String name, int imageResource, String description, int cost, int quantity) {
         this.name = name;
         this.imageResource = imageResource;
         this.description = description;
         this.cost = cost;
-        this.purchased = purchased;
+        this.quantity = quantity;
         this.dateAdded = randomDate();
     }
 
